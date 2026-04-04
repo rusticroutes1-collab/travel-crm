@@ -1,43 +1,34 @@
-# Travel CRM System
+Travel CRM Project
 
-## Overview
+Overview:
+This is a modular Travel CRM system for managing travel operations.
 
-This is a modular Travel CRM system.
+Modules:
+- Leads (Firebase - index.html)
+- Hotels (database.html, stored in localStorage)
+- Vendors (vendors.html, stored in localStorage)
+- Quotations (to be built)
+- Vouchers (to be built)
+- Invoices (to be built)
 
-## Modules
+Data Handling:
+- Leads → Firebase
+- Hotels → localStorage
+- Vendors → localStorage
 
-* Leads (Firebase integrated)
-* Hotels (localStorage)
-* Vendors (localStorage)
-* Quotations (upcoming)
-* Vouchers (upcoming)
-* Invoices (upcoming)
+Rules:
+- Prevent duplicate entries (hotel/vendor)
+- Reuse functions from code.js
+- Keep UI simple and consistent
+- Follow same structure across modules
+- Use IDs to link data (lead → quotation → voucher)
 
-## Tech Used
+Coding Guidelines:
+- Use plain JavaScript (no frameworks)
+- Keep functions reusable
+- Keep file structure modular
+- Maintain clean naming
 
-* HTML
-* CSS
-* JavaScript
-* Firebase (for Leads)
-* LocalStorage (for Hotels & Vendors)
-
-## Structure
-
-* index.html → Leads (Firebase)
-* database.html → Hotels
-* vendors.html → Vendors
-* firebase-sync.js → Firebase integration
-* code.js → Main logic
-
-## Rules
-
-* Avoid duplicate entries
-* Keep modular structure
-* Reuse functions
-* Gradually migrate all modules to Firebase
-
-## Future Plan
-
-* Move Hotels & Vendors to Firebase
-* Quotation automation
-* PDF Voucher system
+Goal:
+Build a complete travel CRM with:
+Lead → Quotation → Voucher → Invoice flow
