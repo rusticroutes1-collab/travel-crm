@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vendors</title>
+</head>
+<body>
+
+  <h2>Vendors Module</h2>
+
+  <!-- Navigation -->
+  <div style="margin-bottom:15px;">
+  <button onclick="location.href='database.html'">Hotels</button>
+  <button onclick="location.href='vendors.html'">Vendors</button>
+</div>
+
+  <hr>
+
+  <!-- Form -->
+  <input id="name" placeholder="Vendor Name"><br><br>
+  <input id="company" placeholder="Company"><br><br>
+  <input id="destination" placeholder="Destination"><br><br>
+  <input id="phone" placeholder="Phone"><br><br>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="notes" placeholder="Notes"><br><br>
+
+  <button onclick="addVendor()">Save Vendor</button>
+
+  <hr>
+
+  <!-- Search -->
+  <input id="search" placeholder="Search..." onkeyup="renderVendors()">
+
+  <!-- List -->
+  <ul id="vendorList"></ul>
+
+</body>
+<script>
+
+let vendors = JSON.parse(localStorage.getItem("vendors")) || [];
+let editIndex = -1;
+
+function addVendor() {
+  let vendor = {
+    id: Date.now(),
+    name: document.getElementById("name").value,
+    company: document.getElementById("company").value,
+    destination: document.getElementById("destination").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value,
+    notes: document.getElementById("notes").value
+  };
+
+  if (!vendor.name) return alert("Name required");
+
+  if (editIndex === -1) {
+    vendors.push(vendor);
+  } else {
+    vendors[editIndex] = vendor;
+    editIndex = -1;
+  }
+
+  localStorage.setItem("vendors", JSON.stringify(vendors));
+  clearForm();
+  renderVendors();
+}
+
+function renderVendors() {
+  let list = document.getElementById("vendorList");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  list.innerHTML = "";
+
+  vendors.forEach((v, i) => {
+    if (
+      v.name.toLowerCase().includes(search) ||
+      v.company.toLowerCase().includes(search) ||
+      v.destination.toLowerCase().includes(search)
+    ) {
+      list.innerHTML += `
+        <li>
+          <b>${v.name}</b> (${v.company}) - ${v.destination}
+          <br>📞 ${v.phone} | ✉️ ${v.email}
+          <br>${v.notes}
+          <br>
+          <button onclick="editVendor(${i})">Edit</button>
+          <button onclick="deleteVendor(${i})">Delete</button>
+          <hr>
+        </li>
+      `;
+    }
+  });
+}
+
+function editVendor(index) {
+  let v = vendors[index];
+
+  document.getElementById("name").value = v.name;
+  document.getElementById("company").value = v.company;
+  document.getElementById("destination").value = v.destination;
+  document.getElementById("phone").value = v.phone;
+  document.getElementById("email").value = v.email;
+  document.getElementById("notes").value = v.notes;
+
+  editIndex = index;
+}
+
+function deleteVendor(index) {
+  if (confirm("Delete this vendor?")) {
+    vendors.splice(index, 1);
+    localStorage.setItem("vendors", JSON.stringify(vendors));
+    renderVendors();
+  }
+}
+
+function clearForm() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+}
+
+renderVendors();
+function goToHotels() {
+  window.location.href = "hotel.html";
+}
+</script>
+</html>

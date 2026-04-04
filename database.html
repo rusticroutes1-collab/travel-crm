@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hotel Database</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, select, textarea { margin: 5px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    button { padding: 5px 10px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Hotel Database</h2>
+
+<div style="margin-bottom:10px;">
+  <a href="hotel.html"><button>Hotels</button></a>
+  <a href="vendors.html"><button>Vendors</button></a>
+</div><!-- ================== FORM ================== -->
+<div>
+  <input id="hotelName" placeholder="Hotel Name">
+  <input id="location" placeholder="Location">
+  <input id="price" placeholder="Price">
+
+  <select id="roomType">
+    <option value="">Room Type</option>
+    <option>Deluxe</option>
+    <option>Superior</option>
+    <option>Suite</option>
+    <option>Standard</option>
+  </select>
+
+  <select id="mealPlan">
+    <option value="">Meal Plan</option>
+    <option>EP</option>
+    <option>CP</option>
+    <option>MAP</option>
+    <option>AP</option>
+  </select>
+
+  <input id="contactName" placeholder="Contact Name">
+  <input id="contact" placeholder="Phone">
+  <input id="email" placeholder="Email">
+  <input id="remarks" placeholder="Remarks">
+
+  <br>
+
+  <button onclick="addHotel()">Save Hotel</button>
+  <button onclick="clearForm()">Clear</button>
+</div>
+
+<!-- ================== BULK ADD ================== -->
+<h3>Bulk Add</h3>
+<textarea rows="5" cols="100" placeholder="Paste multiple lines here"></textarea><br>
+<button onclick="bulkAdd()">Bulk Add</button>
+
+<!-- ================== TABLE ================== -->
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Price</th>
+      <th>Room</th>
+      <th>Meal</th>
+      <th>Contact</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Remarks</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody id="hotelTable"></tbody>
+</table>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+  function goToVendors() {
+    window.location.href = "vendor.html";
+  }
+</script>
+
+<script src="code.js"></script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel CRM</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f4f6f9;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.card {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+}
+
+button {
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+}
+
+table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background: #007bff;
+  color: white;
+}
+/* Fix dropdown width */
+select {
+  min-width: 120px;
+}
+
+/* Buttons alignment */
+td button {
+  display: block;
+  margin: 4px 0;
+  width: 75px;
+  padding: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 4px;
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  background: #1976d2; /* keep one color */
+  color: white;
+  padding: 8px;
+}
+
+td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* Optional hover */
+tr:hover {
+  background: #f1f1f1;
+}
+select {
+  min-width: 120px;
+  padding: 4px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+td:last-child {
+  text-align: center;
+}
+
+td {
+  vertical-align: top;
+}
+.dashboard {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card-box {
+  flex: 1;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-box h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #1976d2;
+}
+
+.card-box p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+.filters {
+  margin-bottom: 15px;
+}
+
+.filters button {
+  margin-right: 5px;
+  padding: 6px 10px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  background: #125ea2;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+<h2>Add Lead</h2>
+
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone Number">
+<input id="destination" placeholder="Destination">
+<input id="travelDate" type="date" placeholder="Travel Date">
+<input id="followup" type="date" placeholder="Next Follow-up">
+<input id="pax" placeholder="Pax">
+<input id="budget" placeholder="Budget">
+
+<select id="status">
+  <option>New</option>
+  <option>Contacted</option>
+  <option>Interested</option>
+  <option>Not Interested</option>
+  <option>Converted</option>
+</select>
+
+<textarea id="notes" placeholder="Notes"></textarea>
+
+
+<button id="saveBtn" onclick="addLead()">Add Lead</button>
+</div>
+
+<div class="card">
+<h2>Search</h2>
+<input id="search" placeholder="Search..." onkeyup="renderLeads()">
+</div>
+
+<div class="card">
+<h2>Leads</h2>
+<button onclick="showToday()">📅 Today's Follow-ups</button>
+<button onclick="showAll()">Show All</button> ✅
+<div class="dashboard">
+
+  <div class="card-box">
+    <h3 id="totalLeads">0</h3>
+    <p>Total Leads</p>
+  </div>
+
+  <div class="card-box">
+    <h3 id="convertedLeads">0</h3>
+    <p>Converted</p>
+  </div>
+
+  <div class="card-box">
+    <h3 id="pendingLeads">0</h3>
+    <p>Pending</p>
+  </div>
+
+  <div class="card-box">
+    <h3 id="todayLeads">0</h3>
+    <p>Today Follow-ups</p>
+  </div>
+
+</div>
+<div class="filters">
+  <button onclick="filterStatus('All')">All</button>
+  <button onclick="filterStatus('New')">New</button>
+  <button onclick="filterStatus('Contacted')">Contacted</button>
+  <button onclick="filterStatus('Interested')">Interested</button>
+  <button onclick="filterStatus('Not Interested')">Not Interested</button>
+  <button onclick="filterStatus('Converted')">Converted</button>
+  <button onclick="showOverdue()">Overdue</button>
+</div>
+<div id="alertBar" style="
+  padding:10px;
+  margin-bottom:10px;
+  font-weight:bold;
+  border-radius:5px;
+  display:none;
+"></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Destination</th>
+<th>Date</th>
+<th>Follow-up</th>
+<th>Status</th>
+<th>Pax</th>
+<th>Budget</th>
+<th>Notes</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="leadTable"></tbody>
+
+
+</table>
+
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+
+<script>
+let selectedLeadIndex = null;
+let currentFilter = "All";
+let showTodayOnly = false;
+let showOverdueOnly = false;
+let editId = null;
+let editingRowId = null;
+
+  function getLeads() {
+  let data = localStorage.getItem("leads");
+  return data ? JSON.parse(data) : [];
+}
+
+function saveLeads(leads) {
+  localStorage.setItem("leads", JSON.stringify(leads));
+}
+
+function addLead() {
+  let name = document.getElementById("name").value;
+  if (!name) {
+    alert("Enter name");
+    return;
+  }
+
+  let lead = {
+    id: editId !== null ? editId : Date.now(),
+    name: name,
+    phone: document.getElementById("phone").value,
+    destination: document.getElementById("destination").value,
+    date: document.getElementById("travelDate").value,
+    followup: document.getElementById("followup").value,
+    pax: document.getElementById("pax").value,
+    budget: document.getElementById("budget").value,
+    status: document.getElementById("status") ? document.getElementById("status").value : "New",
+    notes: document.getElementById("notes") ? document.getElementById("notes").value : ""
+  };
+
+  let leads = getLeads();
+
+  if (editId !== null) {
+    leads = leads.map(l => l.id === editId ? lead : l);
+    editId = null;
+  } else {
+    leads.push(lead);
+  }
+
+  saveLeads(leads);
+
+  // ✅ FIX: use only ONE variable
+  editingRowId = null;
+
+  renderLeads();
+
+  // clear form
+  document.getElementById("name").value = "";
+  document.getElementById("phone").value = "";
+  document.getElementById("destination").value = "";
+  document.getElementById("travelDate").value = "";
+  document.getElementById("followup").value = "";
+  document.getElementById("pax").value = "";
+  document.getElementById("budget").value = "";
+
+  if (document.getElementById("status")) {
+    document.getElementById("status").value = "New";
+  }
+  if (document.getElementById("notes")) {
+    document.getElementById("notes").value = "";
+  }
+
+  document.getElementById("saveBtn").innerText = "Add Lead";
+}
+function filterStatus(status) {
+  currentFilter = status;
+
+  // ✅ RESET OTHER FILTERS
+  showTodayOnly = false;
+  showOverdueOnly = false;
+
+  renderLeads();
+}
+function showOverdue() {
+  showOverdueOnly = true;
+  showTodayOnly = false;
+  renderLeads();
+}
+function deleteLead(id) {
+  let leads = getLeads().filter(l => l.id !== id);
+  saveLeads(leads);
+  renderLeads();
+}
+
+function changeStatus(id, newStatus) {
+  let leads = getLeads();
+  leads = leads.map(l => {
+    if (l.id === id) {
+      l.status = newStatus;
+    }
+    return l;
+  });
+  saveLeads(leads);
+  renderLeads();
+}
+
+function editLead(id) {
+  let leads = getLeads();
+  let lead = leads.find(l => l.id === id);
+
+  if (!lead) return;
+
+  document.getElementById("name").value = lead.name || "";
+  document.getElementById("phone").value = lead.phone || "";
+  document.getElementById("destination").value = lead.destination || "";
+  document.getElementById("travelDate").value = lead.date || "";
+  document.getElementById("followup").value = lead.followup || "";
+  document.getElementById("pax").value = lead.pax || "";
+  document.getElementById("budget").value = lead.budget || "";
+  document.getElementById("status").value = lead.status || "New";
+  document.getElementById("notes").value = lead.notes || "";
+  document.getElementById("saveBtn").innerText = "Update Lead";
+window.scrollTo({ top: 0, behavior: "smooth" });
+editingRowId = id;
+  // 🔥 THIS LINE IS CRITICAL
+  editId = id;
+}
+
+function renderLeads() {
+  console.log("DATA FROM STORAGE:", getLeads());
+
+  let query = document.getElementById("search").value.toLowerCase();
+  let leads = getLeads();
+
+  let html = "";
+  let todayDate = new Date().toISOString().split("T")[0];
+let overdueCount = 0;
+let todayCount = 0;
+ [...leads].reverse().forEach((l, index) => {
+
+    let name = (l.name || "").toLowerCase();
+    let destination = (l.destination || "").toLowerCase();
+
+    if (
+      (name.includes(query) || destination.includes(query)) &&
+      (currentFilter === "All" || l.status === currentFilter) &&
+      (!showTodayOnly || l.followup === todayDate) &&
+      (!showOverdueOnly || (l.followup && l.followup < todayDate))
+    ) {
+if (l.followup) {
+    if (l.followup < todayDate) overdueCount++;
+    if (l.followup === todayDate) todayCount++;
+  }
+let today = new Date().toISOString().split("T")[0];
+
+let isOverdue = l.followup && l.followup < today;
+let isToday = l.followup === today;
+      html += `
+<tr onclick="selectLead(${index})" style="
+  ${isOverdue ? 'background:#ffcccc;' : ''}
+  ${isToday ? 'background:#fff3cd;' : ''}
+  ${editingRowId === l.id ? 'outline: 2px solid #007bff;' : ''}
+">
+  <td>${l.name || "-"}</td>
+  <td>${l.phone || "-"}</td>
+  <td>${l.destination || "-"}</td>
+  <td>${l.date || "-"}</td>
+<td>
+  ${l.followup || "-"}
+  ${isOverdue ? " 🔴 Overdue" : ""}
+  ${isToday ? " 🟡 Today" : ""}
+</td>
+  <td>
+    <select onchange="changeStatus(${l.id}, this.value)">
+      <option ${l.status==="New"?"selected":""}>New</option>
+      <option ${l.status==="Contacted"?"selected":""}>Contacted</option>
+      <option ${l.status==="Interested"?"selected":""}>Interested</option>
+      <option ${l.status==="Not Interested"?"selected":""}>Not Interested</option>
+      <option ${l.status==="Converted"?"selected":""}>Converted</option>
+    </select>
+  </td>
+
+  <td>${l.pax || "-"}</td>
+  <td>${l.budget || "-"}</td>
+  <td>${l.notes || "-"}</td>
+
+  <td>
+    <button onclick="editLead(${l.id})">Edit</button>
+    <button onclick="deleteLead(${l.id})">Delete</button>
+    <button onclick="callLead('${l.phone}')">Call</button>
+    <button onclick="whatsappLead('${l.name}','${l.destination}','${l.phone}')">WA</button>
+  </td>
+</tr>
+`;
+    }
+  });
+
+  document.getElementById("leadTable").innerHTML = html;
+  console.log("Counts:", overdueCount, todayCount);
+  let alertBar = document.getElementById("alertBar");
+
+if (alertBar) {
+  if (overdueCount > 0 || todayCount > 0) {
+    alertBar.style.display = "block";
+
+    alertBar.style.background =
+      overdueCount > 0 ? "#ffcccc" : "#fff3cd";
+
+    alertBar.innerHTML =
+  `🔴 Overdue: ${overdueCount} | 🟡 Today: ${todayCount}`;
+  } else {
+    alertBar.style.display = "none";
+  }
+}
+function showPopupAlert(overdueCount, todayCount) {
+
+  if (overdueCount === 0 && todayCount === 0) return;
+
+  let message = "";
+
+  if (overdueCount > 0) {
+    message += `🔴 Overdue: ${overdueCount}\n`;
+  }
+
+  if (todayCount > 0) {
+    message += `🟡 Today Follow-ups: ${todayCount}`;
+  }
+
+  alert(message);
+}
+showPopupAlert(overdueCount, todayCount);
+  updateDashboard();
+}
+
+function updateDashboard() {
+  let leads = getLeads();
+
+  let total = leads.length;
+  let converted = leads.filter(l => l.status === "Converted").length;
+  let pending = leads.filter(l => l.status !== "Converted").length;
+
+  let todayDate = new Date().toISOString().split("T")[0];
+  let today = leads.filter(l => l.followup === todayDate).length;
+
+  document.getElementById("totalLeads").innerText = total;
+  document.getElementById("convertedLeads").innerText = converted;
+  document.getElementById("pendingLeads").innerText = pending;
+  document.getElementById("todayLeads").innerText = today;
+}
+function callLead(phone) {
+  if (!phone) {
+    alert("No phone number");
+    return;
+  }
+  window.location.href = `tel:${phone}`;
+}
+
+function whatsappLead(name, destination, phone) {
+  if (!phone) {
+    alert("No phone number");
+    return;
+  }
+
+  let message = `Hi ${name}, regarding your ${destination} trip, we have some great options for you. Let me know a good time to discuss.`;
+
+  let url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank");
+}
+function showAll() {
+  showTodayOnly = false;
+  showOverdueOnly = false;
+  currentFilter = "All";
+
+  renderLeads();
+}
+
+function showToday() {
+  showTodayOnly = true;
+
+  // reset others
+  showOverdueOnly = false;
+  currentFilter = "All";
+
+  renderLeads();
+}
+
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  renderLeads();
+});
+</script>
+
+<script>
+setTimeout(function() {
+  console.log("Forcing render...");
+  renderLeads();
+}, 500);
+</script>
+<script src="script.js"></script>
+<script src="firebase-sync.js"></script>
+</body>
+</html>
