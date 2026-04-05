@@ -230,8 +230,4 @@ if (!exists) {
 
 // ================== INIT ==================
 renderHotels();
-
-if (typeof renderVendors === "function") {
-  renderVendors();
-}
 });
