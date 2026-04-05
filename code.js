@@ -12,16 +12,25 @@ function saveHotels() {
 window.addHotel = function () {
 
   let hotel = {
-    name: document.getElementById("hotelName").value,
-    location: document.getElementById("location").value,
-    price: document.getElementById("price").value,
-    roomType: document.getElementById("roomType").value,
-    mealPlan: document.getElementById("mealPlan").value,
-    contactName: document.getElementById("contactName").value,
-    phone: document.getElementById("contact").value,
-    email: document.getElementById("email").value,
-    remarks: document.getElementById("remarks").value
+    name: document.getElementById("hotelName").value.trim(),
+    location: document.getElementById("location").value.trim(),
+    price: document.getElementById("price").value.trim(),
+
+    roomType: document.getElementById("roomType").value || "",
+    mealPlan: document.getElementById("mealPlan").value || "",
+    contactName: document.getElementById("contactName").value.trim(),
+    phone: document.getElementById("contact").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    remarks: document.getElementById("remarks").value.trim(),
+
+    // ✅ NEW (safe)
+    vendor: document.getElementById("vendor")?.value.trim() || ""
   };
+
+  if (!hotel.name || !hotel.location) {
+    alert("Hotel Name and Location are required");
+    return;
+  }
 
   if (editIndex >= 0) {
     hotels[editIndex] = hotel;
@@ -37,6 +46,8 @@ window.addHotel = function () {
 
 // ================= DELETE =================
 window.deleteHotel = function (index) {
+  if (!confirm("Delete this hotel?")) return;
+
   hotels.splice(index, 1);
   saveHotels();
   renderHotels();
@@ -47,21 +58,31 @@ window.editHotel = function (index) {
   let h = hotels[index];
   editIndex = index;
 
-  document.getElementById("hotelName").value = h.name;
-  document.getElementById("location").value = h.location;
-  document.getElementById("price").value = h.price;
-  document.getElementById("roomType").value = h.roomType;
-  document.getElementById("mealPlan").value = h.mealPlan;
-  document.getElementById("contactName").value = h.contactName;
-  document.getElementById("contact").value = h.phone;
-  document.getElementById("email").value = h.email;
-  document.getElementById("remarks").value = h.remarks;
+  document.getElementById("hotelName").value = h.name || "";
+  document.getElementById("location").value = h.location || "";
+  document.getElementById("price").value = h.price || "";
+
+  document.getElementById("roomType").value = h.roomType || "";
+  document.getElementById("mealPlan").value = h.mealPlan || "";
+  document.getElementById("contactName").value = h.contactName || "";
+  document.getElementById("contact").value = h.phone || "";
+  document.getElementById("email").value = h.email || "";
+  document.getElementById("remarks").value = h.remarks || "";
+
+  // ✅ NEW
+  let vendorInput = document.getElementById("vendor");
+  if (vendorInput) vendorInput.value = h.vendor || "";
 };
 
 // ================= CLEAR =================
 window.clearForm = function () {
   document.querySelectorAll("input").forEach(i => i.value = "");
   document.getElementById("remarks").value = "";
+  document.getElementById("roomType").value = "";
+  document.getElementById("mealPlan").value = "";
+
+  let vendorInput = document.getElementById("vendor");
+  if (vendorInput) vendorInput.value = "";
 };
 
 // ================= RENDER =================
@@ -72,15 +93,16 @@ function renderHotels() {
 
   let rows = hotels.map((h, i) => `
     <tr>
-      <td>${h.name}</td>
-      <td>${h.location}</td>
-      <td>${h.price}</td>
-      <td>${h.roomType}</td>
-      <td>${h.mealPlan}</td>
-      <td>${h.contactName}</td>
-      <td>${h.phone}</td>
-      <td>${h.email}</td>
-      <td>${h.remarks}</td>
+      <td>${h.name || ""}</td>
+      <td>${h.location || ""}</td>
+      <td>${h.price || ""}</td>
+      <td>${h.roomType || ""}</td>
+      <td>${h.mealPlan || ""}</td>
+      <td>${h.contactName || ""}</td>
+      <td>${h.phone || ""}</td>
+      <td>${h.email || ""}</td>
+      <td>${h.remarks || ""}</td>
+      <td>${h.vendor || ""}</td> <!-- ✅ NEW -->
       <td>
         <button onclick="editHotel(${i})">Edit</button>
         <button onclick="deleteHotel(${i})">Delete</button>
@@ -123,7 +145,8 @@ window.bulkAdd = function () {
       contactName: "",
       phone: "",
       email: "",
-      remarks: ""
+      remarks: "",
+      vendor: "" // ✅ NEW
     });
 
     added++;
