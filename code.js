@@ -14,20 +14,27 @@ function saveHotels() {
 // ================== ADD ==================
 window.addHotel = function () {
 
-  let hotel = {
-    name: document.getElementById("hotelName")?.value || "",
-    location: document.getElementById("location")?.value || "",
-    pricing: {
-  base: document.getElementById("price")?.value || ""
-},
-    roomType: document.getElementById("roomType")?.value || "",
-    mealPlan: document.getElementById("mealPlan")?.value || "",
-    contactName: document.getElementById("contactName")?.value || "",
-    phone: document.getElementById("contact")?.value || "",
-    email: document.getElementById("email")?.value || "",
-    remarks: document.getElementById("remarks")?.value || ""
-  };
+  let priceValue = document.getElementById("price")?.value || "";
 
+let hotel = {
+  name: document.getElementById("hotelName")?.value || "",
+  location: document.getElementById("location")?.value || "",
+
+  // ✅ ADD THIS (important)
+  price: priceValue,
+
+  // ✅ KEEP THIS
+  pricing: {
+    base: priceValue
+  },
+
+  roomType: document.getElementById("roomType")?.value || "",
+  mealPlan: document.getElementById("mealPlan")?.value || "",
+  contactName: document.getElementById("contactName")?.value || "",
+  phone: document.getElementById("contact")?.value || "",
+  email: document.getElementById("email")?.value || "",
+  remarks: document.getElementById("remarks")?.value || ""
+};
   if (editIndex >= 0) {
     hotels[editIndex] = hotel;
     editIndex = -1;
