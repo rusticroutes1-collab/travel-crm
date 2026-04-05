@@ -1,4 +1,4 @@
-// ================== INIT SAFE ==================
+// ================== INIT ==================
 document.addEventListener("DOMContentLoaded", function () {
 
 let hotels = JSON.parse(localStorage.getItem("hotels")) || [];
@@ -16,30 +16,36 @@ window.addHotel = function () {
 
   let priceValue = document.getElementById("price")?.value || "";
 
-let hotel = {
-  name: document.getElementById("hotelName")?.value || "",
-  location: document.getElementById("location")?.value || "",
+  let hotel = {
+    name: document.getElementById("hotelName")?.value || "",
+    location: document.getElementById("location")?.value || "",
 
-  // ✅ ADD THIS (important)
-  price: priceValue,
+    // ✅ backward compatible
+    price: priceValue,
+    pricing: {
+      base: priceValue
+    },
 
-  // ✅ KEEP THIS
-  pricing: {
-    base: priceValue
-  },
+    roomType: document.getElementById("roomType")?.value || "",
+    mealPlan: document.getElementById("mealPlan")?.value || "",
+    contactName: document.getElementById("contactName")?.value || "",
+    phone: document.getElementById("contact")?.value || "",
+    email: document.getElementById("email")?.value || "",
+    remarks: document.getElementById("remarks")?.value || "",
+    vendorId: ""
+  };
 
-  roomType: document.getElementById("roomType")?.value || "",
-  mealPlan: document.getElementById("mealPlan")?.value || "",
-  contactName: document.getElementById("contactName")?.value || "",
-  phone: document.getElementById("contact")?.value || "",
-  email: document.getElementById("email")?.value || "",
-  remarks: document.getElementById("remarks")?.value || ""
-};
   if (editIndex >= 0) {
-    hotels[editIndex] = hotel;
+    hotels[editIndex] = {
+      ...hotel,
+      id: hotels[editIndex].id
+    };
     editIndex = -1;
   } else {
-    hotels.push(hotel);
+    hotels.push({
+      id: Date.now(),
+      ...hotel
+    });
   }
 
   saveHotels();
@@ -63,7 +69,7 @@ window.editHotel = function (index) {
 
   document.getElementById("hotelName").value = h.name;
   document.getElementById("location").value = h.location;
-  document.getElementById("price").value = h.pricing?.base || "";
+  document.getElementById("price").value = h.pricing?.base || h.price || "";
   document.getElementById("roomType").value = h.roomType;
   document.getElementById("mealPlan").value = h.mealPlan;
   document.getElementById("contactName").value = h.contactName;
@@ -83,15 +89,14 @@ window.clearForm = function () {
 // ================== RENDER ==================
 function renderHotels() {
 
-  let table = document.querySelector("#hotelTable"); // ✅ IMPORTANT FIX
-
+  let table = document.querySelector("#hotelTable");
   if (!table) return;
 
   let rows = hotels.map((h, i) => `
     <tr>
       <td>${h.name}</td>
       <td>${h.location}</td>
-      <td>${h.pricing?.base || ""}</td>
+      <td>${h.pricing?.base || h.price || ""}</td>
       <td>${h.roomType}</td>
       <td>${h.mealPlan}</td>
       <td>${h.contactName}</td>
@@ -109,130 +114,53 @@ function renderHotels() {
 }
 
 
-// ================== BULK ==================
+// ================== BULK ADD ==================
 window.bulkAdd = function () {
 
   let text = document.querySelector("textarea").value;
-  let lines = text.split("\n").filter(l => l.trim() !== "");
+  let lines = text.split("\n");
 
   let added = 0;
 
   lines.forEach(line => {
 
-    // 🔹 STEP 1: split words
-    let words = line.split(" ").filter(Boolean);
+    if (!line.trim()) return;
 
-    // 🔹 STEP 2: keep original safe
-    let originalWords = [...words];
+    let parts = line.split(" ");
 
-    // 🔹 STEP 3: remove junk (safe copy)
-    let cleanWords = words.filter(w =>
-      !w.includes("http") &&
-      !w.startsWith("www") &&
-      !w.includes(".html")
-    );
+    let price = parts.find(p => /^\d+$/.test(p)) || "";
+    let location = parts.find(p =>
+      ["Delhi","Jaipur","Agra","Udaipur","Mumbai"].includes(p)
+    ) || "";
 
-    // 🔹 STEP 4: extract key values from original
-    let phone = originalWords.find(w => /^\d{10}$/.test(w)) || "";
-    let email = originalWords.find(w => w.includes("@")) || "";
-    let price = originalWords.find(w => /^\d{3,6}$/.test(w)) || "";
+    let name = parts.filter(p =>
+      p !== price && p !== location
+    ).join(" ");
 
-    let mealPlans = ["EP", "CP", "MAP", "AP"];
-    let mealPlan = originalWords.find(w => mealPlans.includes(w)) || "";
-
-    let roomTypes = ["Deluxe", "Superior", "Suite", "Standard", "Executive", "Grand"];
-    let roomType = originalWords.find(w => roomTypes.includes(w)) || "";
-
-    // 🔹 STEP 5: remove extracted values from cleanWords
-    let clean = cleanWords.filter(w =>
-      w !== phone &&
-      w !== email &&
-      w !== price &&
-      w !== mealPlan &&
-      w !== roomType
-    );
-
-   // 🔹 STEP: detect price
-let price = words.find(w => /^\d{3,6}$/.test(w)) || "";
-
-// 🔹 STEP: detect location
-let knownCities = ["Delhi", "Mumbai", "Jaipur", "Udaipur", "Agra"];
-
-let location = words.find(w => knownCities.includes(w)) || "";
-
-// 🔹 STEP: build name (everything except price & location)
-let name = words.filter(w =>
-  w !== price && w !== location
-).join(" ");
-
-// 🔹 default contact empty (safe)
-let contactName = "";
-let phone = "";
-let email = "";
-
-    // 🔹 STEP 9: push to hotels
-    // 🔹 STEP: detect vendor
-// 🔹 STEP: detect vendor
-let vendorKeywords = [
-  "travels", "tours", "dmc", "holidays",
-  "taxi", "cab", "transport", "agency", "operator"
-];
-
-let isVendor = vendorKeywords.some(k =>
-  line.toLowerCase().includes(k)
-);
-
-// 🔹 IF VENDOR → SAVE IN vendors
-if (isVendor) {
-
-  let vendors = JSON.parse(localStorage.getItem("vendors")) || [];
-
-  vendors.push({
-    name: name,
-    destination: location,
-    phone: phone,
-    email: email
-  });
-
-  localStorage.setItem("vendors", JSON.stringify(vendors));
-
-} else {
-
-  // 🔹 HOTEL → save normally
-  let exists = hotels.some(h =>
-  h.name.toLowerCase() === name.toLowerCase() &&
-  h.location.toLowerCase() === location.toLowerCase()
-);
-
-if (!exists) {
-  hotels.push({
-  id: Date.now(),
-  name,
-  location,
-  price: price,
-  pricing: {
-    base: price
-  },
-  roomType: "",
-  mealPlan: "",
-  contactName: "",
-  phone: "",
-  email: "",
-  remarks: "",
-  isParsed: true
-});
-}
-
-}
+    hotels.push({
+      id: Date.now(),
+      name: name,
+      location: location,
+      price: price,
+      pricing: {
+        base: price
+      },
+      roomType: "",
+      mealPlan: "",
+      contactName: "",
+      phone: "",
+      email: "",
+      remarks: "",
+      vendorId: "",
+      isParsed: true
+    });
 
     added++;
 
   });
 
-  // 🔹 SAVE + RENDER
   saveHotels();
   renderHotels();
-  
 
   alert(added + " entries added");
 };
@@ -240,4 +168,5 @@ if (!exists) {
 
 // ================== INIT ==================
 renderHotels();
+
 });
