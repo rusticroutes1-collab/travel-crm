@@ -56,7 +56,7 @@ window.editHotel = function (index) {
 
   document.getElementById("hotelName").value = h.name;
   document.getElementById("location").value = h.location;
-  document.getElementById("price").value = h.price;
+  document.getElementById("price").value = h.pricing?.base || "";
   document.getElementById("roomType").value = h.roomType;
   document.getElementById("mealPlan").value = h.mealPlan;
   document.getElementById("contactName").value = h.contactName;
@@ -202,7 +202,9 @@ if (!exists) {
     id: Date.now(),
     name,
     location,
-    price,
+    pricing: {
+  base: price
+},
     roomType,
     mealPlan,
     contactName,
