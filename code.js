@@ -152,23 +152,23 @@ window.bulkAdd = function () {
       w !== roomType
     );
 
-    // 🔹 STEP 6: detect location (simple city logic)
-    let knownCities = ["Delhi", "Mumbai", "Jaipur", "Udaipur", "Indore", "Bangalore"];
+   // 🔹 STEP: detect price
+let price = words.find(w => /^\d{3,6}$/.test(w)) || "";
 
-    let location = clean.find(w => knownCities.includes(w)) || "";
+// 🔹 STEP: detect location
+let knownCities = ["Delhi", "Mumbai", "Jaipur", "Udaipur", "Agra"];
 
-    // remove location from clean
-    clean = clean.filter(w => w !== location);
+let location = words.find(w => knownCities.includes(w)) || "";
 
-    // 🔹 STEP 7: contact = last 2 words
-    let contactName = "";
-    if (clean.length >= 2) {
-      contactName = clean.slice(-2).join(" ");
-      clean.splice(-2);
-    }
+// 🔹 STEP: build name (everything except price & location)
+let name = words.filter(w =>
+  w !== price && w !== location
+).join(" ");
 
-    // 🔹 STEP 8: name = remaining words
-    let name = clean.join(" ");
+// 🔹 default contact empty (safe)
+let contactName = "";
+let phone = "";
+let email = "";
 
     // 🔹 STEP 9: push to hotels
     // 🔹 STEP: detect vendor
@@ -206,20 +206,21 @@ if (isVendor) {
 
 if (!exists) {
   hotels.push({
-    id: Date.now(),
-    name,
-    location,
-    pricing: {
-  base: price
-},
-    roomType,
-    mealPlan,
-    contactName,
-    phone,
-    email,
-    remarks: "",
-    isParsed: true
-  });
+  id: Date.now(),
+  name,
+  location,
+  price: price,
+  pricing: {
+    base: price
+  },
+  roomType: "",
+  mealPlan: "",
+  contactName: "",
+  phone: "",
+  email: "",
+  remarks: "",
+  isParsed: true
+});
 }
 
 }
