@@ -17,7 +17,9 @@ window.addHotel = function () {
   let hotel = {
     name: document.getElementById("hotelName")?.value || "",
     location: document.getElementById("location")?.value || "",
-    price: document.getElementById("price")?.value || "",
+    pricing: {
+  base: document.getElementById("price")?.value || ""
+},
     roomType: document.getElementById("roomType")?.value || "",
     mealPlan: document.getElementById("mealPlan")?.value || "",
     contactName: document.getElementById("contactName")?.value || "",
@@ -82,7 +84,7 @@ function renderHotels() {
     <tr>
       <td>${h.name}</td>
       <td>${h.location}</td>
-      <td>${h.price}</td>
+      <td>${h.pricing?.base || ""}</td>
       <td>${h.roomType}</td>
       <td>${h.mealPlan}</td>
       <td>${h.contactName}</td>
