@@ -190,7 +190,14 @@ if (isVendor) {
 } else {
 
   // 🔹 HOTEL → save normally
+  let exists = hotels.some(h =>
+  h.name.toLowerCase() === name.toLowerCase() &&
+  h.location.toLowerCase() === location.toLowerCase()
+);
+
+if (!exists) {
   hotels.push({
+    id: Date.now(),
     name,
     location,
     price,
@@ -202,6 +209,7 @@ if (isVendor) {
     remarks: "",
     isParsed: true
   });
+}
 
 }
 
